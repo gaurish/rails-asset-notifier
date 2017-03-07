@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+    ServiceName:
+      Type: String
+      Default: TimeService
+      Description: Name for the service, used in the code repository, Lambda function, and pipeline names
+    Bucket:
+      Type: String
+    CodeZipKey:
+      Type: String
+    SLACK_WEBHOOK_URL:
+      Type: String
+    BROKEN_LOAD_BALANCER_NAME:
+      Type: String
+    SLACK_CHANNEL:
+      Type: String
+    ASSET_DOMAIN:
+      Type: String
+    Role:
+      Type: String
+
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Checks for Broken Assets on Rails App servers by fetching the from ELB.
+MemorySize: 256
+Timeout: 60
+Environment:
+  Variables:
+    SLACK_WEBHOOK_URL: !SLACK_WEBHOOK_URL
+    BROKEN_LOAD_BALANCER_NAME: !BROKEN_LOAD_BALANCER_NAME
+    SLACK_CHANNEL: !SLACK_CHANNEL
+    ASSET_DOMAIN: !ASSET_DOMAIN
+
+Resources:
+  MyFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs4.3
+      CodeUri:
+        Bucket: !Bucket
+        Key: !CodeZipKey
+      Role: !Role
+      VpcConfig:
+        SecurityGroupIds:
+          - String
+        SubnetIds:
+          -
